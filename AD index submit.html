@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">  
+<head>
+    <meta charset="UTF-8">
+    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <title>Button and Input Example</title>
+</head>
+<body>
+    <h1>Button and Input Example</h1>
+   
+    <form id="data-form" onsubmit="avviafetch()">
+        <input type="number" id="numberInput" step="0.01" min="0" placeholder="Enter a number..." required>
+        <input type="submit" value="Invia" id="submitButton">
+   </form>
+    <div id="response"></div>
+   <div>Micro Server response: <span id="microserverresponse"></span></div>
+    <script>
+        // Handle button click event
+        // document.getElementById('submitButton').onclick =
+        function avviafetch() {
+  
+      // Check if the form is valid
+      const form = document.getElementById('data-form');
+        if (!form.checkValidity()) {
+            form.reportValidity(); // Show validation messages
+            return; // Stop execution if the form is invalid
+        }
+          event.preventDefault(); // Prevent form submission only after validation passes
+            const inputData = document.getElementById('numberInput').value;
+            console.log("input data: ", inputData); // Log the input data to the console
+    
+            // Send data to the server using Fetch API
+            fetch('/submit1', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                 body: `${encodeURIComponent(inputData)}` 
+             //   body: new URLSearchParams({inputData}) // Use URLSearchParams for form data
+              //    body: new DataView(inputData),
+            })
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('response').innerText = data; // Display server response
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            });
+        };
+// periodic update
+// Fetch the current MICROserver RESPONSE        
+        function updateMicroResp() {
+        fetch('/microresponse')
+    //    .then(response => response.json())
+        .then(response => response.text())
+        .then(data => {
+            document.getElementById('microserverresponse').innerText = data;
+        })
+        .catch(err => {
+            document.getElementById('microserverresponse').innerText = 'Error fetching micro response';
+        });
+}
+// Update immediately and then every 10 seconds
+updateMicroResp();
+setInterval(updateMicroResp, 10000);
+    </script>
+</body>
+</html>
